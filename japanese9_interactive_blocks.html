@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>일본어 9 단어·문장 블록 연습</title>
+<style>
+  :root{
+    --bg1:#fff7ed;
+    --bg2:#eef2ff;
+    --main:#ff7a59;
+    --main2:#6366f1;
+    --accent:#22c55e;
+    --dark:#1f2937;
+    --muted:#6b7280;
+    --card:#ffffff;
+    --soft:#f8fafc;
+    --line:#e5e7eb;
+    --wrong:#ef4444;
+    --right:#16a34a;
+    --shadow:0 14px 35px rgba(31,41,55,.12);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", "Noto Sans JP", sans-serif;
+    color:var(--dark);
+    background:
+      radial-gradient(circle at top left, rgba(255,122,89,.28), transparent 30%),
+      radial-gradient(circle at top right, rgba(99,102,241,.22), transparent 32%),
+      linear-gradient(135deg,var(--bg1),var(--bg2));
+    min-height:100vh;
+  }
+  .app{width:min(980px,100%); margin:0 auto; padding:18px 14px 90px;}
+  header{
+    background:rgba(255,255,255,.82);
+    border:1px solid rgba(255,255,255,.8);
+    backdrop-filter:blur(10px);
+    box-shadow:var(--shadow);
+    border-radius:26px;
+    padding:20px 18px;
+    margin-bottom:16px;
+  }
+  .badge{display:inline-flex; align-items:center; gap:7px; font-size:13px; font-weight:800; color:#fff; background:linear-gradient(135deg,var(--main),var(--main2)); padding:7px 12px; border-radius:999px;}
+  h1{font-size:clamp(26px,7vw,44px); margin:12px 0 6px; letter-spacing:-.04em; line-height:1.05;}
+  .sub{margin:0; color:var(--muted); font-weight:650; font-size:15px; line-height:1.45;}
+  .tabs{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:16px 0;}
+  .tab{
+    border:0; border-radius:18px; padding:15px 10px; cursor:pointer;
+    font-size:16px; font-weight:900; color:#334155; background:#fff;
+    box-shadow:0 8px 18px rgba(31,41,55,.08);
+  }
+  .tab.active{color:#fff; background:linear-gradient(135deg,var(--main),var(--main2)); transform:translateY(-1px);}
+  .panel{display:none;}
+  .panel.active{display:block;}
+  .card{background:rgba(255,255,255,.92); border:1px solid rgba(255,255,255,.9); border-radius:28px; box-shadow:var(--shadow); padding:18px; margin-bottom:16px;}
+  .topline{display:flex; justify-content:space-between; gap:10px; align-items:center; margin-bottom:10px;}
+  .mode-title{font-size:20px; font-weight:950; letter-spacing:-.03em;}
+  .score{font-weight:900; color:#4f46e5; background:#eef2ff; padding:8px 12px; border-radius:999px; font-size:14px;}
+  .questionBox{background:linear-gradient(135deg,#fff7ed,#fef3c7); border:2px dashed #fdba74; border-radius:24px; padding:18px; text-align:center; margin:14px 0;}
+  .questionLabel{font-size:14px; color:#92400e; font-weight:900; margin-bottom:8px;}
+  .meaning{font-size:clamp(30px,10vw,54px); font-weight:950; letter-spacing:-.05em;}
+  .hint{font-size:14px; color:var(--muted); font-weight:700; margin-top:8px;}
+  .answerArea{min-height:72px; background:#f8fafc; border:2px solid #e2e8f0; border-radius:22px; padding:10px; display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:8px; margin:14px 0;}
+  .placeholder{color:#94a3b8; font-weight:800;}
+  .blockArea{display:flex; flex-wrap:wrap; gap:9px; justify-content:center; background:#fff; border-radius:22px; padding:14px; border:1px solid var(--line); min-height:82px;}
+  .kana, .wordblock{
+    border:0; cursor:pointer; user-select:none;
+    background:linear-gradient(180deg,#ffffff,#f1f5f9);
+    border:2px solid #dbeafe;
+    box-shadow:0 6px 0 #c7d2fe, 0 10px 16px rgba(31,41,55,.08);
+    border-radius:16px; color:#111827; font-weight:950;
+    transition:.12s ease;
+  }
+  .kana{min-width:54px; min-height:54px; font-size:28px; padding:8px 13px;}
+  .wordblock{font-size:22px; padding:13px 16px; min-height:58px;}
+  .kana:active,.wordblock:active{transform:translateY(4px); box-shadow:0 2px 0 #c7d2fe;}
+  .selected{background:linear-gradient(180deg,#ecfeff,#cffafe); border-color:#67e8f9;}
+  .actions{display:grid; grid-template-columns:1fr 1fr 1fr; gap:9px; margin-top:14px;}
+  button.action{border:0; border-radius:16px; padding:14px 8px; font-weight:950; font-size:15px; cursor:pointer;}
+  .check{background:linear-gradient(135deg,#22c55e,#14b8a6); color:#fff;}
+  .reset{background:#f1f5f9; color:#334155;}
+  .next{background:linear-gradient(135deg,#6366f1,#8b5cf6); color:#fff;}
+  .result{min-height:36px; margin-top:12px; font-size:18px; font-weight:950; text-align:center;}
+  .result.right{color:var(--right);} .result.wrong{color:var(--wrong);}
+  .sentence-card{background:linear-gradient(135deg,#eef2ff,#f5f3ff); border:2px dashed #c4b5fd; border-radius:24px; padding:16px; margin:14px 0;}
+  .krSentence{text-align:center; font-size:clamp(24px,7vw,42px); font-weight:950; letter-spacing:-.04em;}
+  .pattern{margin-top:8px; text-align:center; color:#5b21b6; font-weight:900;}
+  .answerLine{min-height:88px; background:#fff; border:2px solid #ddd6fe; border-radius:22px; padding:10px; display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:9px; margin:14px 0;}
+  .smallGuide{font-size:13px; line-height:1.5; color:var(--muted); font-weight:700; text-align:center; margin-top:10px;}
+  .footerNav{position:fixed; left:0; right:0; bottom:0; background:rgba(255,255,255,.9); backdrop-filter:blur(10px); border-top:1px solid #e5e7eb; padding:10px 14px; display:flex; justify-content:center;}
+  .footerNav .inner{width:min(980px,100%); display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  .footerNav button{border:0; border-radius:16px; padding:14px 8px; font-weight:950; color:#fff; background:linear-gradient(135deg,var(--main),var(--main2)); cursor:pointer;}
+  @media (max-width:520px){
+    .app{padding:12px 10px 86px;} header,.card{border-radius:22px;} .actions{grid-template-columns:1fr;} .wordblock{font-size:20px; padding:12px 14px;} .kana{font-size:26px; min-width:50px;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="badge">🍙 일본어 9 · 블록 연습</div>
+    <h1>뜻을 보고<br>일본어를 완성해요</h1>
+    <p class="sub">히라가나 조각을 눌러 단어를 만들고, 단어 블록을 눌러 랜덤 문장을 완성하는 연습 앱이에요.</p>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('word')">① 단어 만들기</button>
+    <button class="tab" onclick="switchTab('sentence')">② 문장 만들기</button>
+  </div>
+
+  <section id="word" class="panel active">
+    <div class="card">
+      <div class="topline"><div class="mode-title">🍣 히라가나 옮기기</div><div class="score" id="wordScore">0 / 0</div></div>
+      <div class="questionBox">
+        <div class="questionLabel">뜻</div>
+        <div class="meaning" id="wordMeaning">초밥</div>
+        <div class="hint">아래 조각을 순서대로 눌러 단어를 완성하세요.</div>
+      </div>
+      <div class="answerArea" id="kanaAnswer"><span class="placeholder">여기에 글자가 쌓여요</span></div>
+      <div class="blockArea" id="kanaBlocks"></div>
+      <div class="actions">
+        <button class="action reset" onclick="resetWordAnswer()">다시 하기</button>
+        <button class="action check" onclick="checkWord()">정답 확인</button>
+        <button class="action next" onclick="newWordQuestion()">다음 문제</button>
+      </div>
+      <div id="wordResult" class="result"></div>
+    </div>
+  </section>
+
+  <section id="sentence" class="panel">
+    <div class="card">
+      <div class="topline"><div class="mode-title">🧩 랜덤 문장 조합</div><div class="score" id="sentenceScore">0 / 0</div></div>
+      <div class="sentence-card">
+        <div class="questionLabel" style="text-align:center;color:#5b21b6;">한국어 문장</div>
+        <div class="krSentence" id="krSentence">초밥을 먹습니다.</div>
+        <div class="pattern" id="patternHint">문형: 〜を たべます</div>
+      </div>
+      <div class="answerLine" id="sentenceAnswer"><span class="placeholder">단어 블록을 순서대로 눌러 문장을 완성하세요</span></div>
+      <div class="blockArea" id="sentenceBlocks"></div>
+      <div class="actions">
+        <button class="action reset" onclick="resetSentenceAnswer()">다시 하기</button>
+        <button class="action check" onclick="checkSentence()">정답 확인</button>
+        <button class="action next" onclick="newSentenceQuestion()">다음 문장</button>
+      </div>
+      <div id="sentenceResult" class="result"></div>
+      <div class="smallGuide">블록을 잘못 눌렀다면 “다시 하기”를 누르세요. 조사 は / を 도 문장 순서에 맞게 넣어야 해요 🙂</div>
+    </div>
+  </section>
+</div>
+
+<div class="footerNav">
+  <div class="inner">
+    <button onclick="switchTab('word')">단어 만들기</button>
+    <button onclick="switchTab('sentence')">문장 만들기</button>
+  </div>
+</div>
+
+<script>
+const vocab = [
+  {kr:'초밥', jp:'すし'}, {kr:'우동', jp:'うどん'}, {kr:'소바', jp:'そば'}, {kr:'튀김', jp:'てんぷら'},
+  {kr:'타코야키', jp:'たこやき'}, {kr:'주먹밥', jp:'おにぎり'}, {kr:'돈까스', jp:'とんかつ'}, {kr:'규동', jp:'ぎゅうどん'},
+  {kr:'오뎅', jp:'おでん'}, {kr:'떡', jp:'もち'}, {kr:'낫토', jp:'なっとう'}, {kr:'고추', jp:'とうがらし'},
+  {kr:'소금빵', jp:'しおぱん'}, {kr:'차', jp:'おちゃ'}, {kr:'빙수', jp:'かきごおり'},
+  {kr:'맛있다', jp:'おいしい'}, {kr:'맛없다', jp:'まずい'}, {kr:'달다', jp:'あまい'}, {kr:'맵다', jp:'からい'},
+  {kr:'짜다', jp:'しょっぱい'}, {kr:'시다', jp:'すっぱい'}, {kr:'뜨겁다', jp:'あつい'}, {kr:'차갑다', jp:'つめたい'}
+];
+const foods = [
+  {kr:'초밥', jp:'すし'}, {kr:'우동', jp:'うどん'}, {kr:'소바', jp:'そば'}, {kr:'튀김', jp:'てんぷら'}, {kr:'타코야키', jp:'たこやき'},
+  {kr:'카레', jp:'カレー'}, {kr:'주먹밥', jp:'おにぎり'}, {kr:'돈까스', jp:'とんかつ'}, {kr:'규동', jp:'ぎゅうどん'}, {kr:'오뎅', jp:'おでん'}, {kr:'떡', jp:'もち'}
+];
+const tastePairs = [
+  {foodKr:'초밥', foodJp:'すし', adjKr:'맛있습니다', adjJp:'おいしい'},
+  {foodKr:'낫토', foodJp:'なっとう', adjKr:'맛없습니다', adjJp:'まずい'},
+  {foodKr:'초콜릿', foodJp:'チョコ', adjKr:'답니다', adjJp:'あまい'},
+  {foodKr:'고추', foodJp:'とうがらし', adjKr:'맵습니다', adjJp:'からい'},
+  {foodKr:'소금빵', foodJp:'しおぱん', adjKr:'짭니다', adjJp:'しょっぱい'},
+  {foodKr:'레몬', foodJp:'レモン', adjKr:'십니다', adjJp:'すっぱい'},
+  {foodKr:'차', foodJp:'おちゃ', adjKr:'뜨겁습니다', adjJp:'あつい'},
+  {foodKr:'빙수', foodJp:'かきごおり', adjKr:'차갑습니다', adjJp:'つめたい'}
+];
+let currentWord=null, wordAnswer=[], wordCorrect=0, wordTotal=0;
+let currentSentence=null, sentenceAnswer=[], sentenceCorrect=0, sentenceTotal=0;
+function shuffle(arr){return [...arr].sort(()=>Math.random()-0.5)}
+function switchTab(id){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelector(`.tab[onclick="switchTab('${id}')"]`).classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+function splitKana(str){return Array.from(str)}
+function makeDistractors(answer){
+  const pool = ['す','し','う','ど','ん','そ','ば','て','ぷ','ら','た','こ','や','き','お','に','ぎ','り','と','か','つ','も','ち','ま','ず','い','あ','ま','か','つ','め','ぱ','ご','り','ちゃ'];
+  const blocks = splitKana(answer);
+  while(blocks.length < Math.min(9, splitKana(answer).length+4)) blocks.push(pool[Math.floor(Math.random()*pool.length)]);
+  return shuffle(blocks);
+}
+function renderKanaAnswer(){
+  const area=document.getElementById('kanaAnswer');
+  area.innerHTML='';
+  if(wordAnswer.length===0){area.innerHTML='<span class="placeholder">여기에 글자가 쌓여요</span>';return;}
+  wordAnswer.forEach((k,i)=>{
+    const b=document.createElement('button'); b.className='kana selected'; b.textContent=k; b.onclick=()=>{wordAnswer.splice(i,1); renderKanaAnswer(); renderKanaBlocks();}; area.appendChild(b);
+  });
+}
+function renderKanaBlocks(){
+  const box=document.getElementById('kanaBlocks'); box.innerHTML='';
+  currentWord.blocks.forEach((k,i)=>{
+    if(currentWord.used.includes(i)) return;
+    const b=document.createElement('button'); b.className='kana'; b.textContent=k; b.onclick=()=>{wordAnswer.push(k); currentWord.used.push(i); renderKanaAnswer(); renderKanaBlocks();}; box.appendChild(b);
+  });
+}
+function newWordQuestion(){
+  currentWord = {...vocab[Math.floor(Math.random()*vocab.length)]};
+  currentWord.blocks = makeDistractors(currentWord.jp); currentWord.used=[]; wordAnswer=[];
+  document.getElementById('wordMeaning').textContent=currentWord.kr;
+  document.getElementById('wordResult').textContent=''; document.getElementById('wordResult').className='result';
+  renderKanaAnswer(); renderKanaBlocks(); updateScores();
+}
+function resetWordAnswer(){ if(!currentWord)return; currentWord.used=[]; wordAnswer=[]; renderKanaAnswer(); renderKanaBlocks(); document.getElementById('wordResult').textContent=''; }
+function checkWord(){
+  if(!currentWord)return; wordTotal++;
+  const ans=wordAnswer.join(''); const result=document.getElementById('wordResult');
+  if(ans===currentWord.jp){wordCorrect++; result.textContent='정답! 잘했어요 🎉'; result.className='result right';}
+  else{result.textContent=`아쉬워요! 정답은 ${currentWord.jp} 입니다.`; result.className='result wrong';}
+  updateScores();
+}
+function makeSentence(){
+  if(Math.random()<0.55){
+    const f=foods[Math.floor(Math.random()*foods.length)];
+    return {kr:`${f.kr}을/를 먹습니다.`, pattern:'문형: 〜を たべます', answer:[f.jp,'を','たべます'], extra:['は','です','おいしい','からい']};
+  } else {
+    const p=tastePairs[Math.floor(Math.random()*tastePairs.length)];
+    return {kr:`${p.foodKr}는 ${p.adjKr}.`, pattern:'문형: 〜は 〜です', answer:[p.foodJp,'は',p.adjJp,'です'], extra:['を','たべます','すし','もち']};
+  }
+}
+function renderSentenceAnswer(){
+  const area=document.getElementById('sentenceAnswer'); area.innerHTML='';
+  if(sentenceAnswer.length===0){area.innerHTML='<span class="placeholder">단어 블록을 순서대로 눌러 문장을 완성하세요</span>';return;}
+  sentenceAnswer.forEach((w,i)=>{const b=document.createElement('button'); b.className='wordblock selected'; b.textContent=w; b.onclick=()=>{sentenceAnswer.splice(i,1); currentSentence.used.splice(currentSentence.used.indexOf(i),0); resetSentenceAnswer();}; area.appendChild(b);});
+}
+function renderSentenceBlocks(){
+  const box=document.getElementById('sentenceBlocks'); box.innerHTML='';
+  currentSentence.blocks.forEach((w,i)=>{
+    if(currentSentence.used.includes(i)) return;
+    const b=document.createElement('button'); b.className='wordblock'; b.textContent=w; b.onclick=()=>{sentenceAnswer.push(w); currentSentence.used.push(i); renderSentenceAnswer(); renderSentenceBlocks();}; box.appendChild(b);
+  });
+}
+function newSentenceQuestion(){
+  currentSentence=makeSentence();
+  currentSentence.blocks=shuffle([...currentSentence.answer, ...shuffle(currentSentence.extra).slice(0,2)]);
+  currentSentence.used=[]; sentenceAnswer=[];
+  document.getElementById('krSentence').textContent=currentSentence.kr;
+  document.getElementById('patternHint').textContent=currentSentence.pattern;
+  document.getElementById('sentenceResult').textContent=''; document.getElementById('sentenceResult').className='result';
+  renderSentenceAnswer(); renderSentenceBlocks(); updateScores();
+}
+function resetSentenceAnswer(){ if(!currentSentence)return; currentSentence.used=[]; sentenceAnswer=[]; renderSentenceAnswer(); renderSentenceBlocks(); document.getElementById('sentenceResult').textContent=''; }
+function checkSentence(){
+  if(!currentSentence)return; sentenceTotal++;
+  const ans=sentenceAnswer.join('|'); const correct=currentSentence.answer.join('|'); const result=document.getElementById('sentenceResult');
+  if(ans===correct){sentenceCorrect++; result.textContent='정답! 문장이 완성됐어요 🌟'; result.className='result right';}
+  else{result.textContent=`아쉬워요! 정답은 ${currentSentence.answer.join(' ')} 입니다.`; result.className='result wrong';}
+  updateScores();
+}
+function updateScores(){
+  document.getElementById('wordScore').textContent=`${wordCorrect} / ${wordTotal}`;
+  document.getElementById('sentenceScore').textContent=`${sentenceCorrect} / ${sentenceTotal}`;
+}
+newWordQuestion(); newSentenceQuestion();
+</script>
+</body>
+</html>
