@@ -100,7 +100,6 @@
 <div class="app">
   <header>
     <div class="badge">🍙 일본어 9 연습</div>
-    <h1><br></h1>
     <p class="sub">히라가나 조각을 눌러 단어를 만들고, 단어 블록을 눌러 랜덤 문장을 완성하세요.</p>
   </header>
 
@@ -228,10 +227,10 @@ function checkWord(){
 function makeSentence(){
   if(Math.random()<0.55){
     const f=foods[Math.floor(Math.random()*foods.length)];
-    return {kr:`${f.kr}을/를 먹습니다.`, pattern:'문형: 〜を たべます', answer:[f.jp,'を','たべます'], extra:['は','です','おいしい','からい']};
+    return {kr:`${f.kr}(을/를) 먹습니다.`, pattern:'문형: 〜を たべます', answer:[f.jp,'を','たべます'], extra:['は','です','おいしい','からい']};
   } else {
     const p=tastePairs[Math.floor(Math.random()*tastePairs.length)];
-    return {kr:`${p.foodKr}는 ${p.adjKr}.`, pattern:'문형: 〜は 〜です', answer:[p.foodJp,'は',p.adjJp,'です'], extra:['を','たべます','すし','もち']};
+    return {kr:`${p.foodKr}(은/는) ${p.adjKr}.`, pattern:'문형: 〜は 〜です', answer:[p.foodJp,'は',p.adjJp,'です'], extra:['を','たべます','すし','もち']};
   }
 }
 function renderSentenceAnswer(){
