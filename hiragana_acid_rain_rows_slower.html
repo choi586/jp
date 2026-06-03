@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>히라가나 산성비</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(#eaf6ff, #ffffff);
+      color: #1f2937;
+      overflow: hidden;
+      touch-action: manipulation;
+    }
+    .app {
+      width: 100vw;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      padding: 10px 12px 6px;
+      background: rgba(255,255,255,0.88);
+      border-bottom: 1px solid #dbeafe;
+      z-index: 5;
+    }
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    h1 {
+      font-size: 19px;
+      margin: 0;
+      letter-spacing: -0.04em;
+    }
+    .stats {
+      font-size: 14px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .mode-row {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .mode-row button {
+      border: 1px solid #bfdbfe;
+      background: #ffffff;
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 13px;
+      font-weight: 800;
+      color: #1d4ed8;
+      white-space: nowrap;
+    }
+    .mode-row button.active {
+      background: #2563eb;
+      color: white;
+      border-color: #2563eb;
+    }
+    #game {
+      position: relative;
+      flex: 1;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 20% 10%, rgba(255,255,255,.95), transparent 22%),
+        linear-gradient(#dff3ff 0%, #f7fbff 72%, #fff7ed 100%);
+    }
+    .drop {
+      position: absolute;
+      top: -80px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 74px;
+      height: 74px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 3px solid #60a5fa;
+      box-shadow: 0 8px 18px rgba(37, 99, 235, .22);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 42px;
+      font-weight: 900;
+      color: #111827;
+      user-select: none;
+    }
+    .waterline {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 28px;
+      background: linear-gradient(90deg, #93c5fd, #60a5fa);
+      opacity: .45;
+    }
+    .message {
+      position: absolute;
+      left: 50%;
+      top: 42%;
+      transform: translate(-50%, -50%);
+      width: min(88vw, 360px);
+      background: rgba(255,255,255,.94);
+      border: 2px solid #bfdbfe;
+      border-radius: 20px;
+      padding: 18px 16px;
+      text-align: center;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, .14);
+      z-index: 4;
+    }
+    .message strong {
+      display: block;
+      font-size: 23px;
+      margin-bottom: 8px;
+    }
+    .message p {
+      margin: 6px 0 14px;
+      font-size: 15px;
+      line-height: 1.45;
+    }
+    .message button {
+      border: 0;
+      background: #2563eb;
+      color: white;
+      border-radius: 14px;
+      padding: 12px 18px;
+      font-size: 16px;
+      font-weight: 900;
+    }
+    footer {
+      padding: 9px 8px 12px;
+      background: #ffffff;
+      border-top: 1px solid #dbeafe;
+      z-index: 5;
+    }
+    #answers {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+    }
+    #answers button {
+      flex: 1 1 0;
+      min-width: 0;
+      max-width: 76px;
+      border: 0;
+      border-radius: 14px;
+      background: #1d4ed8;
+      color: #ffffff;
+      padding: 13px 0;
+      font-size: clamp(18px, 5.3vw, 25px);
+      font-weight: 900;
+      box-shadow: 0 4px 0 #1e40af;
+    }
+    #answers button:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #1e40af;
+    }
+    .shake { animation: shake .25s linear; }
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+    @media (max-width: 380px) {
+      h1 { font-size: 17px; }
+      .stats { font-size: 13px; }
+      #answers { gap: 4px; }
+      #answers button { border-radius: 12px; font-size: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="top">
+        <h1>히라가나 산성비</h1>
+        <div class="stats">점수 <span id="score">0</span> · 생명 <span id="life">3</span></div>
+      </div>
+      <div class="mode-row" id="modeRow"></div>
+    </header>
+
+    <main id="game">
+      <div class="waterline"></div>
+      <div class="message" id="startBox">
+        <strong>히라가나를 맞혀요</strong>
+        <p>위에서 내려오는 히라가나를 보고<br>아래 한국어 발음을 터치하세요.</p>
+        <button id="startBtn">시작하기</button>
+      </div>
+    </main>
+
+    <footer>
+      <div id="answers"></div>
+    </footer>
+  </div>
+
+  <script>
+    const ROWS = {
+      "전체 46자": [
+        ["あ","아"],["い","이"],["う","우"],["え","에"],["お","오"],
+        ["か","카"],["き","키"],["く","쿠"],["け","케"],["こ","코"],
+        ["さ","사"],["し","시"],["す","스"],["せ","세"],["そ","소"],
+        ["た","타"],["ち","치"],["つ","츠"],["て","테"],["と","토"],
+        ["な","나"],["に","니"],["ぬ","누"],["ね","네"],["の","노"],
+        ["は","하"],["ひ","히"],["ふ","후"],["へ","헤"],["ほ","호"],
+        ["ま","마"],["み","미"],["む","무"],["め","메"],["も","모"],
+        ["や","야"],["ゆ","유"],["よ","요"],
+        ["ら","라"],["り","리"],["る","루"],["れ","레"],["ろ","로"],
+        ["わ","와"],["を","오"],["ん","응"]
+      ],
+      "あいうえお": [["あ","아"],["い","이"],["う","우"],["え","에"],["お","오"]],
+      "かきくけこ": [["か","카"],["き","키"],["く","쿠"],["け","케"],["こ","코"]],
+      "さしすせそ": [["さ","사"],["し","시"],["す","스"],["せ","세"],["そ","소"]],
+      "たちつてと": [["た","타"],["ち","치"],["つ","츠"],["て","테"],["と","토"]],
+      "なにぬねの": [["な","나"],["に","니"],["ぬ","누"],["ね","네"],["の","노"]],
+      "はひふへほ": [["は","하"],["ひ","히"],["ふ","후"],["へ","헤"],["ほ","호"]],
+      "まみむめも": [["ま","마"],["み","미"],["む","무"],["め","메"],["も","모"]],
+      "やゆよ": [["や","야"],["ゆ","유"],["よ","요"]],
+      "らりるれろ": [["ら","라"],["り","리"],["る","루"],["れ","레"],["ろ","로"]],
+      "わをん": [["わ","와"],["を","오"],["ん","응"]]
+    };
+
+    const game = document.getElementById("game");
+    const answers = document.getElementById("answers");
+    const scoreEl = document.getElementById("score");
+    const lifeEl = document.getElementById("life");
+    const startBox = document.getElementById("startBox");
+    const startBtn = document.getElementById("startBtn");
+    const modeRow = document.getElementById("modeRow");
+
+    let modeName = "あいうえお";
+    let pool = ROWS[modeName];
+    let current = null;
+    let drop = null;
+    let y = -80;
+    let score = 0;
+    let life = 3;
+    let speed = 0.25;
+    let running = false;
+    let rafId = null;
+
+    function pick(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function shuffle(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function makeModes() {
+      Object.keys(ROWS).forEach(name => {
+        const btn = document.createElement("button");
+        btn.textContent = name;
+        btn.onclick = () => {
+          setMode(name);
+        };
+        modeRow.appendChild(btn);
+      });
+      updateModeButtons();
+    }
+
+    function updateModeButtons() {
+      [...modeRow.children].forEach(btn => {
+        btn.classList.toggle("active", btn.textContent === modeName);
+      });
+    }
+
+    function setMode(name) {
+      modeName = name;
+      pool = ROWS[modeName];
+      updateModeButtons();
+      renderAnswers();
+
+      if (running) {
+        nextDrop();
+      }
+    }
+
+    function renderAnswers() {
+      answers.innerHTML = "";
+
+      let choices;
+
+      // 행별 학습 모드에서는 아래 버튼을 그 행 발음으로 고정
+      if (modeName !== "전체 46자") {
+        choices = pool.map(item => item[1]);
+      } else {
+        // 전체 46자 모드에서는 현재 정답 + 랜덤 오답으로 구성
+        const correct = current ? current[1] : pick(pool)[1];
+        const wrongs = shuffle(pool.map(item => item[1]).filter(ko => ko !== correct)).slice(0, 4);
+        choices = shuffle([correct, ...wrongs]);
+      }
+
+      choices.forEach(ko => {
+        const btn = document.createElement("button");
+        btn.textContent = ko;
+        btn.addEventListener("click", () => checkAnswer(ko));
+        btn.addEventListener("touchstart", (e) => {
+          e.preventDefault();
+          checkAnswer(ko);
+        }, { passive: false });
+        answers.appendChild(btn);
+      });
+    }
+
+    function startGame() {
+      score = 0;
+      life = 3;
+      speed = 0.25;
+      running = true;
+      scoreEl.textContent = score;
+      lifeEl.textContent = life;
+      startBox.style.display = "none";
+      nextDrop();
+      loop();
+    }
+
+    function nextDrop() {
+      if (drop) drop.remove();
+      current = pick(pool);
+      y = -80;
+
+      drop = document.createElement("div");
+      drop.className = "drop";
+      drop.textContent = current[0];
+      drop.style.left = (18 + Math.random() * 64) + "%";
+      drop.style.top = y + "px";
+      game.appendChild(drop);
+
+      renderAnswers();
+    }
+
+    function checkAnswer(ko) {
+      if (!running || !current) return;
+
+      if (ko === current[1]) {
+        score += 10;
+        scoreEl.textContent = score;
+        speed = Math.min(speed + 0.025, 1.0);
+        nextDrop();
+      } else {
+        life -= 1;
+        lifeEl.textContent = life;
+        document.body.classList.add("shake");
+        setTimeout(() => document.body.classList.remove("shake"), 250);
+        if (life <= 0) gameOver();
+      }
+    }
+
+    function miss() {
+      life -= 1;
+      lifeEl.textContent = life;
+      if (life <= 0) {
+        gameOver();
+      } else {
+        nextDrop();
+      }
+    }
+
+    function gameOver() {
+      running = false;
+      if (rafId) cancelAnimationFrame(rafId);
+      if (drop) drop.remove();
+
+      startBox.innerHTML = `
+        <strong>게임 끝!</strong>
+        <p>점수: ${score}점<br>다시 연습해볼까요?</p>
+        <button id="restartBtn">다시 시작</button>
+      `;
+      startBox.style.display = "block";
+      document.getElementById("restartBtn").onclick = startGame;
+    }
+
+    function loop() {
+      if (!running) return;
+
+      y += speed;
+      if (drop) drop.style.top = y + "px";
+
+      const bottomLimit = game.clientHeight - 62;
+      if (y > bottomLimit) {
+        miss();
+      }
+
+      rafId = requestAnimationFrame(loop);
+    }
+
+    makeModes();
+    renderAnswers();
+    startBtn.onclick = startGame;
+  </script>
+</body>
+</html>
