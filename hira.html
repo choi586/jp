@@ -1,0 +1,158 @@
+328
+    }
+329
+​
+330
+    function nextDrop() {
+331
+      if (drop) drop.remove();
+332
+      current = pick(pool);
+333
+      y = -80;
+334
+​
+335
+      drop = document.createElement("div");
+336
+      drop.className = "drop";
+337
+      drop.textContent = current[0];
+338
+      drop.style.left = (18 + Math.random() * 64) + "%";
+339
+      drop.style.top = y + "px";
+340
+      game.appendChild(drop);
+341
+​
+342
+      renderAnswers();
+343
+    }
+344
+​
+345
+    function checkAnswer(ko) {
+346
+      if (!running || !current) return;
+347
+​
+348
+      if (ko === current[1]) {
+349
+        score += 10;
+350
+        scoreEl.textContent = score;
+351
+        speed = Math.min(speed + 0.025, 1.0);
+352
+        nextDrop();
+353
+      } else {
+354
+        life -= 1;
+355
+        lifeEl.textContent = life;
+356
+        document.body.classList.add("shake");
+357
+        setTimeout(() => document.body.classList.remove("shake"), 250);
+358
+        if (life <= 0) gameOver();
+359
+      }
+360
+    }
+361
+​
+362
+    function miss() {
+363
+      life -= 1;
+364
+      lifeEl.textContent = life;
+365
+      if (life <= 0) {
+366
+        gameOver();
+367
+      } else {
+368
+        nextDrop();
+369
+      }
+370
+    }
+371
+​
+372
+    function gameOver() {
+373
+      running = false;
+374
+      if (rafId) cancelAnimationFrame(rafId);
+375
+      if (drop) drop.remove();
+376
+​
+377
+      startBox.innerHTML = `
+378
+        <strong>게임 끝!</strong>
+379
+        <p>점수: ${score}점<br>다시 연습해볼까요?</p>
+380
+        <button id="restartBtn">다시 시작</button>
+381
+      `;
+382
+      startBox.style.display = "block";
+383
+      document.getElementById("restartBtn").onclick = startGame;
+384
+    }
+385
+​
+386
+    function loop() {
+387
+      if (!running) return;
+388
+​
+389
+      y += speed;
+390
+      if (drop) drop.style.top = y + "px";
+391
+​
+392
+      const bottomLimit = game.clientHeight - 62;
+393
+      if (y > bottomLimit) {
+394
+        miss();
+395
+      }
+396
+​
+397
+      rafId = requestAnimationFrame(loop);
+398
+    }
+399
+​
+400
+    makeModes();
+401
+    renderAnswers();
+402
+    startBtn.onclick = startGame;
+403
+  </script>
+404
+​
+405
+​
+406
+</body></html>
